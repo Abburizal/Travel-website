@@ -13,6 +13,7 @@ class Tour extends Model
         'duration',
         'destination',
         'image',
+        'images', // Multiple images support
         'category_id',
         'max_participants',
         'booked_participants',
@@ -24,6 +25,7 @@ class Tour extends Model
         'price' => 'decimal:2',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'images' => 'array', // Cast JSON to array
     ];
 
     public function category()
@@ -36,11 +38,62 @@ class Tour extends Model
         return $this->hasMany(Booking::class);
     }
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews()
+    {
+        return $this->hasMany(Review::class)->where('is_approved', true);
+    }
+
+    // Calculate average rating
+    public function getAverageRatingAttribute()
+    {
+        return $this->approvedReviews()->avg('rating') ?? 0;
+    }
+
+    // Get total review count
+    public function getReviewCountAttribute()
+    {
+        return $this->approvedReviews()->count();
+    }
+
     /**
      * Get available seats count
      */
     public function getAvailableSeatsAttribute()
     {
         return $this->max_participants - $this->booked_participants;
+    }
+    
+    /**
+     * Get all images (both old 'image' field and new 'images' array)
+     */
+    public function getAllImagesAttribute()
+    {
+        $allImages = [];
+        
+        // Add old single image if exists
+        if ($this->image) {
+            $allImages[] = $this->image;
+        }
+        
+        // Add new multiple images if exists
+        if ($this->images && is_array($this->images)) {
+            $allImages = array_merge($allImages, $this->images);
+        }
+        
+        return array_unique($allImages);
+    }
+    
+    /**
+     * Get first image for thumbnail
+     */
+    public function getFirstImageAttribute()
+    {
+        $images = $this->getAllImagesAttribute();
+        return !empty($images) ? $images[0] : null;
     }
 }

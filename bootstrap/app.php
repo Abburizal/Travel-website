@@ -12,12 +12,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Configure API authentication to return JSON instead of redirecting
+        $middleware->redirectGuestsTo(function ($request) {
+            if ($request->is('api/*')) {
+                // For API routes, don't redirect - let Sanctum handle it
+                return null;
+            }
+            return route('login');
+        });
     })
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
         // Auto-expire pending bookings every minute
         $schedule->command('bookings:expire')->everyMinute();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Handle unauthenticated users for API routes
+        $exceptions->shouldRenderJsonWhen(function ($request, $exception) {
+            return $request->is('api/*');
+        });
     })->create();

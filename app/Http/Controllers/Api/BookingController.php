@@ -5,22 +5,30 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
+use App\Mail\BookingInvoice;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Only return bookings for authenticated user
+        $bookings = Booking::with('tour')
+            ->where('user_id', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return response()->json([
             'success' => true,
-            'data' => Booking::with('tour')->get()
+            'data' => $bookings
         ], 200);
     }
 
     public function store(Request $request)
     {
         try {
-            // Security: Ensure user is authenticated
-            if (!auth()->check()) {
+            // Security: Ensure user is authenticated  
+            if (!$request->user()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Unauthenticated'
@@ -34,11 +42,11 @@ class BookingController extends Controller
             ]);
 
             // Use authenticated user ID instead of user input (SECURITY FIX)
-            $userId = auth()->id();
+            $userId = $request->user()->id;
             $expiryMinutes = (int) config('booking.expiry_minutes', 30);
 
             // CONCURRENCY FIX: Use database transaction with row locking
-            $booking = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $userId, $expiryMinutes) {
+            $result = \Illuminate\Support\Facades\DB::transaction(function () use ($validated, $userId, $expiryMinutes) {
                 // Lock the tour row to prevent race condition
                 $tour = \App\Models\Tour::where('id', $validated['tour_id'])
                     ->lockForUpdate()
@@ -84,13 +92,20 @@ class BookingController extends Controller
                 ];
             }, 5); // 5 attempts for deadlock retry
 
+            // Load relationships for email
+            $booking = Booking::with(['user', 'tour'])->find($result['booking']->id);
+
+            // Send invoice email (queued in background)
+            Mail::to($booking->user->email)
+                ->send(new BookingInvoice($booking, null));
+
             return response()->json([
                 'success' => true,
-                'data' => $booking['booking'],
-                'expired_at' => $booking['expired_at'],
+                'data' => $result['booking'],
+                'expired_at' => $result['expired_at'],
                 'remaining_seconds' => $expiryMinutes * 60,
-                'available_seats' => $booking['available'] - $validated['number_of_participants'],
-                'message' => 'Booking created successfully. Payment required within ' . $expiryMinutes . ' minutes.'
+                'available_seats' => $result['available'] - $validated['number_of_participants'],
+                'message' => 'Booking created successfully. Invoice email sent. Payment required within ' . $expiryMinutes . ' minutes.'
             ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([

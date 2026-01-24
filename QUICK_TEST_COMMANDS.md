@@ -215,7 +215,7 @@ php artisan tinker
 ## 🚨 Common Issues & Fixes
 
 **Issue**: `"SQLSTATE[HY000]: General error: 1 unable to open database file"`
-- Fix: Run `php artisan migrate`
+- Fix: Run ``
 
 **Issue**: `401 Unauthenticated` on protected route
 - Fix: Add proper Authorization header: `Bearer TOKEN`

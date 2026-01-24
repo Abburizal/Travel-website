@@ -6,15 +6,42 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\Payment;
-use Midtrans\Snap;
-use Midtrans\Config;
+use App\Services\PaymentService;
 
 class PaymentController extends Controller
 {
-    public function create($bookingId)
+    protected $paymentService;
+
+    public function __construct(PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
+    public function create(Request $request, $bookingId)
     {
         try {
-            $booking = Booking::with('tour')->findOrFail($bookingId);
+            $booking = Booking::with(['tour', 'user'])->findOrFail($bookingId);
+
+            // Debug logging
+            \Log::info('Payment request', [
+                'booking_id' => $bookingId,
+                'booking_user_id' => $booking->user_id,
+                'auth_user_id' => $request->user()->id,
+            ]);
+
+            // Security: Ensure user owns this booking
+            if ($booking->user_id !== $request->user()->id) {
+                \Log::warning('Unauthorized payment access attempt', [
+                    'booking_id' => $bookingId,
+                    'booking_user_id' => $booking->user_id,
+                    'requesting_user_id' => $request->user()->id,
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access to this booking'
+                ], 403);
+            }
 
             // Check if booking is expired
             if ($booking->expired_at && now()->greaterThan($booking->expired_at)) {
@@ -28,63 +55,44 @@ class PaymentController extends Controller
             if ($booking->status !== 'pending') {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Booking sudah diproses'
+                    'message' => 'Booking already processed'
                 ], 422);
             }
 
-            Config::$serverKey = config('services.midtrans.server_key');
-            Config::$clientKey = config('services.midtrans.client_key');
-            Config::$isProduction = config('services.midtrans.is_production');
-            Config::$isSanitized = true;
-            Config::$is3ds = true;
+            // Use PaymentService to create Snap transaction
+            $result = $this->paymentService->createSnapTransaction($booking);
 
-            $params = [
-                'transaction_details' => [
-                    'order_id' => 'BOOKING-' . $booking->id . '-' . time(),
-                    'gross_amount' => (int) $booking->total_price,
-                ],
-                'customer_details' => [
-                    'first_name' => $booking->user->name ?? 'Guest',
-                    'email' => $booking->user->email ?? 'guest@example.com',
-                    'phone' => $booking->user->phone ?? '',
-                ],
-                'item_details' => [
-                    [
-                        'id' => 'TOUR-' . $booking->tour->id,
-                        'price' => (int) $booking->tour->price,
-                        'quantity' => $booking->number_of_participants,
-                        'name' => $booking->tour->name,
-                    ],
-                ],
-            ];
-
-            try {
-                $snapToken = Snap::getSnapToken($params);
-            } catch (\Exception $e) {
-                // For development/testing without valid Midtrans credentials
-                // In production, this will work with proper credentials
-                $snapToken = 'test-snap-token-' . $booking->id . '-' . time();
+            if ($result['status'] === 'error') {
+                return response()->json([
+                    'success' => false,
+                    'message' => $result['message']
+                ], 500);
             }
 
+            // Save payment record
             Payment::updateOrCreate(
                 ['booking_id' => $booking->id],
                 [
                     'status' => 'pending',
-                    'payload' => $params,
+                    'payload' => [
+                        'order_id' => $result['order_id'],
+                        'snap_token' => $result['snap_token'],
+                    ],
                 ]
             );
 
             return response()->json([
                 'success' => true,
-                'snap_token' => $snapToken,
+                'snap_token' => $result['snap_token'],
                 'booking_id' => $booking->id,
-                'order_id' => $params['transaction_details']['order_id'],
-                'gross_amount' => $params['transaction_details']['gross_amount'],
+                'order_id' => $result['order_id'],
+                'redirect_url' => $result['redirect_url'],
+                'gross_amount' => (int) $booking->total_price,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal membuat snap token: ' . $e->getMessage(),
+                'message' => 'Failed to create payment token: ' . $e->getMessage(),
             ], 500);
         }
     }
