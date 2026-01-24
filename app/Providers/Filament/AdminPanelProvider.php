@@ -27,7 +27,10 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Tripin Travel Admin')
+            ->brandName('Flymora Admin Panel')
+            ->brandLogo('/images/logo.svg')
+            ->brandLogoHeight('3rem')
+            ->favicon('/favicon.svg')
             ->colors([
                 'primary' => Color::Blue,
                 'success' => Color::Green,

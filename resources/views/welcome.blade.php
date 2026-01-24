@@ -4,7 +4,14 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>Flymora Tours and Travels</title>
+        
+        <!-- SEO Meta Tags -->
+        <meta name="description" content="Flymora Tours and Travels - Discover amazing destinations and create unforgettable memories with our curated travel experiences.">
+        <meta name="keywords" content="travel, tours, booking, flymora, vacation, adventure">
+        
+        <!-- Favicon -->
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

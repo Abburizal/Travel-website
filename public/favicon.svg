@@ -1,0 +1,11 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#3B82F6"/>
+  
+  <!-- Airplane Icon -->
+  <g transform="translate(6, 8)">
+    <path d="M19 7.5L17.5 9L12.5 8L10 10.5L11.5 12L14 11L15 12L16.5 10.5L19 11.5L20 10L19 7.5Z" fill="white"/>
+    <path d="M12.5 8L7.5 4L5 6.5L10 10.5L12.5 8Z" fill="#E0F2FE"/>
+    <circle cx="14" cy="10" r="1" fill="#DBEAFE"/>
+  </g>
+</svg>

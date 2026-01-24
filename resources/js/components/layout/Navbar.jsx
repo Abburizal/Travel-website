@@ -15,8 +15,12 @@ export default function Navbar() {
         <nav className="bg-white shadow-md">
             <div className="container mx-auto px-4 py-4">
                 <div className="flex justify-between items-center">
-                    <Link to="/" className="text-2xl font-bold text-blue-600">
-                        Tripin Travel
+                    <Link to="/" className="flex items-center space-x-3">
+                        <img 
+                            src="/images/logo.svg" 
+                            alt="Flymora Tours and Travels" 
+                            className="h-12"
+                        />
                     </Link>
                     
                     <div className="hidden md:flex space-x-6 items-center">

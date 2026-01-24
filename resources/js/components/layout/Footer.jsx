@@ -6,7 +6,13 @@ export default function Footer() {
             <div className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <div>
-                        <h3 className="text-xl font-bold mb-4">Tripin Travel</h3>
+                        <div className="flex items-center space-x-2 mb-4">
+                            <img 
+                                src="/images/logo.svg" 
+                                alt="Flymora Tours and Travels" 
+                                className="h-10"
+                            />
+                        </div>
                         <p className="text-gray-400">
                             Your trusted partner for unforgettable travel experiences around the world.
                         </p>
@@ -21,12 +27,12 @@ export default function Footer() {
                     </div>
                     <div>
                         <h4 className="text-lg font-semibold mb-4">Contact</h4>
-                        <p className="text-gray-400">Email: info@tripintravel.com</p>
+                        <p className="text-gray-400">Email: info@flymoratours.com</p>
                         <p className="text-gray-400">Phone: +62 123 4567 890</p>
                     </div>
                 </div>
                 <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                    <p>&copy; 2026 Tripin Travel. All rights reserved.</p>
+                    <p>&copy; 2026 Flymora Tours and Travels. All rights reserved.</p>
                 </div>
             </div>
         </footer>

@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "flymora/tours-travels",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Flymora Tours and Travels - Modern travel booking platform with Laravel backend",
+    "keywords": ["laravel", "travel", "booking", "tours", "flymora"],
     "license": "MIT",
     "require": {
         "php": "^8.2",

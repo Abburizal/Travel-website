@@ -8,7 +8,7 @@ export default function Home() {
             <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
                 <div className="container mx-auto px-4 text-center">
                     <h1 className="text-5xl font-bold mb-6">
-                        Explore the World with Tripin Travel
+                        Explore the World with Flymora
                     </h1>
                     <p className="text-xl mb-8 max-w-2xl mx-auto">
                         Discover amazing destinations, create unforgettable memories,
