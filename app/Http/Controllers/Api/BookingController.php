@@ -5,8 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
-use App\Mail\BookingInvoice;
-use Illuminate\Support\Facades\Mail;
+use App\Jobs\SendInvoiceEmail;
 
 class BookingController extends Controller
 {
@@ -95,9 +94,8 @@ class BookingController extends Controller
             // Load relationships for email
             $booking = Booking::with(['user', 'tour'])->find($result['booking']->id);
 
-            // Send invoice email (queued in background)
-            Mail::to($booking->user->email)
-                ->send(new BookingInvoice($booking, null));
+            // Queue invoice email to send in background
+            SendInvoiceEmail::dispatch($booking);
 
             return response()->json([
                 'success' => true,

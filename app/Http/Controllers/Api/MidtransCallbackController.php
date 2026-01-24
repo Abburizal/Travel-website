@@ -5,10 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payment;
-use App\Mail\BookingETicket;
+use App\Jobs\SendETicketEmail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 use Midtrans\Config;
 
 class MidtransCallbackController extends Controller
@@ -86,10 +85,9 @@ class MidtransCallbackController extends Controller
                         ]);
                     });
                     
-                    // Send e-ticket email after successful payment
+                    // Queue e-ticket email to send in background
                     $booking->load(['user', 'tour']);
-                    Mail::to($booking->user->email)
-                        ->send(new BookingETicket($booking));
+                    SendETicketEmail::dispatch($booking);
                     
                     \Log::info('Payment successful for booking ' . $booking->id, [
                         'transaction_id' => $transactionId,
