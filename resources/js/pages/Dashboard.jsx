@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import SubmitReview from '../components/SubmitReview';
 
 export default function Dashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showReviewForm, setShowReviewForm] = useState({});
 
     useEffect(() => {
         fetchBookings();
@@ -141,6 +143,35 @@ export default function Dashboard() {
                                     >
                                         Pay Now
                                     </button>
+                                </div>
+                            )}
+
+                            {(booking.status === 'paid' || booking.status === 'completed') && (
+                                <div className="border-t pt-4">
+                                    {!showReviewForm[booking.id] ? (
+                                        <button
+                                            onClick={() => setShowReviewForm({...showReviewForm, [booking.id]: true})}
+                                            className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-lg hover:from-purple-700 hover:to-blue-700 flex items-center gap-2"
+                                        >
+                                            ⭐ Write a Review
+                                        </button>
+                                    ) : (
+                                        <div>
+                                            <button
+                                                onClick={() => setShowReviewForm({...showReviewForm, [booking.id]: false})}
+                                                className="mb-4 text-gray-600 hover:text-gray-800 text-sm flex items-center gap-1"
+                                            >
+                                                ← Hide Review Form
+                                            </button>
+                                            <SubmitReview
+                                                booking={booking}
+                                                onSubmitted={(review) => {
+                                                    setShowReviewForm({...showReviewForm, [booking.id]: false});
+                                                    alert('✅ Thank you for your review!');
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

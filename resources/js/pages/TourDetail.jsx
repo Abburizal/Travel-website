@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import ReviewList from '../components/ReviewList';
+import StarRating from '../components/StarRating';
 
 export default function TourDetail() {
     const { id } = useParams();
@@ -10,9 +12,11 @@ export default function TourDetail() {
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [reviewStats, setReviewStats] = useState(null);
 
     useEffect(() => {
         fetchTourDetail();
+        fetchReviewStats();
     }, [id]);
 
     const fetchTourDetail = async () => {
@@ -23,6 +27,17 @@ export default function TourDetail() {
             setError('Failed to load tour details');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchReviewStats = async () => {
+        try {
+            const response = await api.get(`/tours/${id}/reviews?per_page=1`);
+            if (response.data.success) {
+                setReviewStats(response.data.stats);
+            }
+        } catch (err) {
+            console.log('Could not load review stats');
         }
     };
 
@@ -66,6 +81,19 @@ export default function TourDetail() {
                 
                 <div className="p-8">
                     <h1 className="text-4xl font-bold mb-4">{tour.name}</h1>
+                    
+                    {/* Rating Section */}
+                    {reviewStats && reviewStats.total_reviews > 0 && (
+                        <div className="flex items-center gap-4 mb-4 pb-4 border-b">
+                            <StarRating rating={reviewStats.average_rating} />
+                            <span className="text-2xl font-bold text-gray-800">
+                                {reviewStats.average_rating.toFixed(1)}
+                            </span>
+                            <span className="text-gray-600">
+                                ({reviewStats.total_reviews} {reviewStats.total_reviews === 1 ? 'review' : 'reviews'})
+                            </span>
+                        </div>
+                    )}
                     
                     <div className="flex flex-wrap gap-4 mb-6 text-gray-600">
                         <div className="flex items-center">
@@ -111,6 +139,12 @@ export default function TourDetail() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Reviews Section */}
+            <div className="mt-8 bg-white rounded-lg shadow-md p-8">
+                <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+                <ReviewList tourId={id} />
             </div>
         </div>
     );
