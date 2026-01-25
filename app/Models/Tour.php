@@ -23,13 +23,24 @@ class Tour extends Model implements HasMedia
         'booked_participants',
         'start_date',
         'end_date',
+        'highlights',
+        'included',
+        'excluded',
+        'departure_location',
+        'available_from',
+        'available_until',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'available_from' => 'date',
+        'available_until' => 'date',
         'images' => 'array', // Cast JSON to array
+        'highlights' => 'array',
+        'included' => 'array',
+        'excluded' => 'array',
     ];
 
     /**
