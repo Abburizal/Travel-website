@@ -1,7 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 export default function Home() {
+    const location = useLocation();
+
+    useEffect(() => {
+        // Handle scroll after navigation from footer
+        if (location.state?.scrollTo) {
+            const element = document.getElementById(location.state.scrollTo);
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+            }
+        }
+    }, [location]);
+
     return (
         <div>
             {/* Hero Section */}
@@ -24,7 +38,7 @@ export default function Home() {
             </section>
 
             {/* About Us Section */}
-            <section className="py-20 bg-white">
+            <section id="about" className="py-20 bg-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-16">
                         <h2 className="text-4xl font-bold mb-4 text-gray-800">About Flymora</h2>
@@ -252,7 +266,7 @@ export default function Home() {
             </section>
 
             {/* Contact Section */}
-            <section className="py-20 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+            <section id="contact" className="py-20 bg-gradient-to-br from-blue-600 to-blue-800 text-white">
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
                         <h2 className="text-4xl font-bold mb-4">Get In Touch</h2>

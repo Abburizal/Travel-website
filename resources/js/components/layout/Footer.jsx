@@ -1,6 +1,21 @@
 import React from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 export default function Footer() {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const scrollToSection = (sectionId) => {
+        if (location.pathname !== '/') {
+            navigate('/', { state: { scrollTo: sectionId } });
+        } else {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    };
+
     return (
         <footer className="bg-gray-800 text-white mt-auto">
             <div className="container mx-auto px-4 py-8">
@@ -20,9 +35,27 @@ export default function Footer() {
                     <div>
                         <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
                         <ul className="space-y-2">
-                            <li><a href="/tours" className="text-gray-400 hover:text-white">Tours</a></li>
-                            <li><a href="/about" className="text-gray-400 hover:text-white">About Us</a></li>
-                            <li><a href="/contact" className="text-gray-400 hover:text-white">Contact</a></li>
+                            <li>
+                                <Link to="/tours" className="text-gray-400 hover:text-white transition">
+                                    Tours
+                                </Link>
+                            </li>
+                            <li>
+                                <button 
+                                    onClick={() => scrollToSection('about')} 
+                                    className="text-gray-400 hover:text-white transition text-left"
+                                >
+                                    About Us
+                                </button>
+                            </li>
+                            <li>
+                                <button 
+                                    onClick={() => scrollToSection('contact')} 
+                                    className="text-gray-400 hover:text-white transition text-left"
+                                >
+                                    Contact
+                                </button>
+                            </li>
                         </ul>
                     </div>
                     <div>
