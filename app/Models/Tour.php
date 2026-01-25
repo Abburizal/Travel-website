@@ -39,6 +39,11 @@ class Tour extends Model implements HasMedia
     {
         $this->addMediaCollection('images')
             ->useDisk('public');
+        
+        $this->addMediaCollection('itinerary')
+            ->useDisk('public')
+            ->singleFile() // Only one itinerary PDF per tour
+            ->acceptsMimeTypes(['application/pdf']);
     }
 
     public function category()

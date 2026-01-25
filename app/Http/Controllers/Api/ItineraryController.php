@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Tour;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class ItineraryController extends Controller
 {
@@ -12,6 +13,26 @@ class ItineraryController extends Controller
     {
         $tour = Tour::with('category')->findOrFail($id);
         
+        // Check if custom itinerary PDF exists
+        $customItinerary = $tour->getFirstMedia('itinerary');
+        
+        if ($customItinerary) {
+            // Download custom PDF uploaded by admin
+            return response()->download(
+                $customItinerary->getPath(),
+                $customItinerary->file_name,
+                [
+                    'Content-Type' => 'application/pdf',
+                ]
+            );
+        }
+        
+        // If no custom PDF, generate default itinerary
+        return $this->generateDefaultItinerary($tour);
+    }
+    
+    private function generateDefaultItinerary($tour)
+    {
         // Get gallery images
         $galleryImages = $tour->getMedia('images')->take(3)->map(function($media) {
             return $media->getUrl();

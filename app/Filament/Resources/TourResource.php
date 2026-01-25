@@ -82,6 +82,15 @@ class TourResource extends Resource
                     ->maxSize(5120) // 5MB
                     ->helperText('Upload up to 10 images for gallery. Drag to reorder. Max 5MB per image.')
                     ->columnSpanFull(),
+                SpatieMediaLibraryFileUpload::make('custom_itinerary')
+                    ->label('Custom Itinerary PDF (Optional)')
+                    ->collection('itinerary')
+                    ->acceptedFileTypes(['application/pdf'])
+                    ->maxSize(10240) // 10MB
+                    ->downloadable()
+                    ->openable()
+                    ->helperText('Upload a custom PDF itinerary. If not uploaded, system will auto-generate one. Max 10MB.')
+                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('max_participants')
                     ->label('Max Participants')
                     ->required()
@@ -145,6 +154,16 @@ class TourResource extends Resource
                     ->getStateUsing(fn ($record) => $record->available_seats)
                     ->badge()
                     ->color(fn ($state) => $state > 10 ? 'success' : ($state > 0 ? 'warning' : 'danger')),
+                Tables\Columns\IconColumn::make('has_custom_itinerary')
+                    ->label('Custom PDF')
+                    ->getStateUsing(fn ($record) => $record->hasMedia('itinerary'))
+                    ->boolean()
+                    ->trueIcon('heroicon-o-document-check')
+                    ->falseIcon('heroicon-o-document')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn ($record) => $record->hasMedia('itinerary') ? 'Custom PDF uploaded' : 'Auto-generated PDF')
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Start Date')
                     ->date('d M Y')
