@@ -77,7 +77,6 @@ class TourController extends Controller
                 return [
                     'id' => $media->id,
                     'url' => $media->getUrl(),
-                    'thumb' => $media->getUrl('thumb'),
                     'name' => $media->file_name,
                 ];
             });
@@ -112,7 +111,6 @@ class TourController extends Controller
             return [
                 'id' => $media->id,
                 'url' => $media->getUrl(),
-                'thumb' => $media->getUrl('thumb'),
                 'name' => $media->file_name,
             ];
         });
