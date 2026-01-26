@@ -2,6 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Eager load critical pages (above the fold)
 import Home from './pages/Home';
@@ -48,8 +49,9 @@ const ProtectedRoute = ({ children }) => {
 
 function App() {
     return (
-        <Routes>
-            <Route path="/" element={<Layout />}>
+        <ErrorBoundary>
+            <Routes>
+                <Route path="/" element={<Layout />}>
                 {/* Eager loaded pages (no Suspense needed) */}
                 <Route index element={<Home />} />
                 <Route path="login" element={<Login />} />
@@ -154,6 +156,7 @@ function App() {
                 />
             </Route>
         </Routes>
+        </ErrorBoundary>
     );
 }
 
