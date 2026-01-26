@@ -50,22 +50,69 @@ function App() {
     return (
         <Routes>
             <Route path="/" element={<Layout />}>
+                {/* Eager loaded pages (no Suspense needed) */}
                 <Route index element={<Home />} />
-                <Route path="tours" element={<Tours />} />
-                <Route path="tours/:id" element={<TourDetail />} />
-                <Route path="faq" element={<FAQ />} />
-                <Route path="contact" element={<Contact />} />
-                <Route path="terms-of-service" element={<TermsOfService />} />
-                <Route path="privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 
-                {/* Protected Routes */}
+                {/* Lazy loaded pages (wrapped in Suspense) */}
+                <Route 
+                    path="tours" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <Tours />
+                        </Suspense>
+                    } 
+                />
+                <Route 
+                    path="tours/:id" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <TourDetail />
+                        </Suspense>
+                    } 
+                />
+                <Route 
+                    path="faq" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <FAQ />
+                        </Suspense>
+                    } 
+                />
+                <Route 
+                    path="contact" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <Contact />
+                        </Suspense>
+                    } 
+                />
+                <Route 
+                    path="terms-of-service" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <TermsOfService />
+                        </Suspense>
+                    } 
+                />
+                <Route 
+                    path="privacy-policy" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <PrivacyPolicy />
+                        </Suspense>
+                    } 
+                />
+                
+                {/* Protected Routes with Suspense */}
                 <Route
                     path="dashboard"
                     element={
                         <ProtectedRoute>
-                            <Dashboard />
+                            <Suspense fallback={<PageLoader />}>
+                                <Dashboard />
+                            </Suspense>
                         </ProtectedRoute>
                     }
                 />
@@ -73,22 +120,37 @@ function App() {
                     path="wishlist"
                     element={
                         <ProtectedRoute>
-                            <Wishlist />
+                            <Suspense fallback={<PageLoader />}>
+                                <Wishlist />
+                            </Suspense>
                         </ProtectedRoute>
                     }
                 />
-                <Route path="compare" element={<ComparePage />} />
+                <Route 
+                    path="compare" 
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <ComparePage />
+                        </Suspense>
+                    } 
+                />
                 <Route
                     path="booking/:tourId"
                     element={
                         <ProtectedRoute>
-                            <Booking />
+                            <Suspense fallback={<PageLoader />}>
+                                <Booking />
+                            </Suspense>
                         </ProtectedRoute>
                     }
                 />
                 <Route
                     path="payment/:snapToken"
-                    element={<PaymentSimulator />}
+                    element={
+                        <Suspense fallback={<PageLoader />}>
+                            <PaymentSimulator />
+                        </Suspense>
+                    }
                 />
             </Route>
         </Routes>
