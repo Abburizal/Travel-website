@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../services/api';
 import WishlistButton from '../components/WishlistButton';
+import CompareButton from '../components/CompareButton';
 
 export default function Tours() {
     const [tours, setTours] = useState([]);
@@ -344,16 +345,19 @@ export default function Tours() {
                                         </span>
                                     </div>
                                     
-                                    <Link
-                                        to={`/tours/${tour.id}`}
-                                        className={`block w-full text-center py-2 rounded-lg transition-colors ${
-                                            isSoldOut 
-                                                ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
-                                                : 'bg-blue-600 text-white hover:bg-blue-700'
-                                        }`}
-                                    >
-                                        {isSoldOut ? 'Sold Out' : 'View Details'}
-                                    </Link>
+                                    <div className="flex gap-2">
+                                        <CompareButton tour={tour} size="sm" variant="outline" />
+                                        <Link
+                                            to={`/tours/${tour.id}`}
+                                            className={`flex-1 block text-center py-2 rounded-lg transition-colors ${
+                                                isSoldOut 
+                                                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
+                                                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                                            }`}
+                                        >
+                                            {isSoldOut ? 'Sold Out' : 'View Details'}
+                                        </Link>
+                                    </div>
                                 </div>
                             </div>
                         );

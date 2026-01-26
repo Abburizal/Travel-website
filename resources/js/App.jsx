@@ -17,6 +17,7 @@ import Contact from './pages/Contact';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import Wishlist from './pages/Wishlist';
+import ComparePage from './pages/ComparePage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -64,6 +65,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route path="compare" element={<ComparePage />} />
                 <Route
                     path="booking/:tourId"
                     element={

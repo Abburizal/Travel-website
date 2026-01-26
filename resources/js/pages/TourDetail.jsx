@@ -7,6 +7,7 @@ import StarRating from '../components/StarRating';
 import ImageGallery from '../components/ImageGallery';
 import SocialShare from '../components/SocialShare';
 import WishlistButton from '../components/WishlistButton';
+import CompareButton from '../components/CompareButton';
 
 export default function TourDetail() {
     const { id } = useParams();
@@ -137,8 +138,9 @@ export default function TourDetail() {
                         <div className="flex-1">
                             <div className="flex items-start justify-between mb-4">
                                 <h1 className="text-4xl font-bold flex-1">{tour.name}</h1>
-                                {/* Wishlist Button */}
-                                <div className="ml-4">
+                                {/* Action Buttons */}
+                                <div className="ml-4 flex gap-2">
+                                    <CompareButton tour={tour} size="md" variant="outline" />
                                     <WishlistButton tourId={tour.id} size="lg" showText />
                                 </div>
                             </div>
