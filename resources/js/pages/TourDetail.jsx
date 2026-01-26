@@ -20,9 +20,22 @@ export default function TourDetail() {
     const [error, setError] = useState('');
     const [reviewStats, setReviewStats] = useState(null);
 
+    // DEBUG: Log component mount and ID
     useEffect(() => {
-        fetchTourDetail();
-        fetchReviewStats();
+        console.log('🔍 TourDetail mounted with ID:', id);
+        console.log('🔍 Current URL:', window.location.href);
+    }, []);
+
+    useEffect(() => {
+        console.log('🔍 Fetching tour with ID:', id);
+        if (id) {
+            fetchTourDetail();
+            fetchReviewStats();
+        } else {
+            console.error('❌ No tour ID provided!');
+            setError('Tour ID is missing');
+            setLoading(false);
+        }
     }, [id]);
 
     // Update meta tags when tour data is loaded
@@ -67,12 +80,21 @@ export default function TourDetail() {
     };
 
     const fetchTourDetail = async () => {
+        console.log('🚀 fetchTourDetail called for ID:', id);
         try {
-            const response = await api.get(`/tours/${id}`);
+            const url = `/tours/${id}`;
+            console.log('📡 Calling API:', url);
+            const response = await api.get(url);
+            console.log('✅ API Response received:', response.data);
             setTour(response.data);
+            console.log('✅ Tour data set in state');
         } catch (err) {
+            console.error('❌ Error fetching tour:', err);
+            console.error('❌ Error response:', err.response?.data);
+            console.error('❌ Error status:', err.response?.status);
             setError('Failed to load tour details');
         } finally {
+            console.log('🏁 fetchTourDetail finished, setting loading to false');
             setLoading(false);
         }
     };
@@ -127,19 +149,32 @@ export default function TourDetail() {
     };
 
     if (loading) {
+        console.log('⏳ TourDetail: Showing loading state');
         return (
             <div className="container mx-auto px-4 py-16">
                 <div className="flex flex-col items-center justify-center">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mb-4"></div>
                     <p className="text-gray-600 text-lg">Loading tour details...</p>
+                    <p className="text-gray-400 text-sm mt-2">Tour ID: {id}</p>
                 </div>
             </div>
         );
     }
 
     if (error || !tour) {
-        return <div className="container mx-auto px-4 py-16 text-center text-red-600">{error}</div>;
+        console.log('❌ TourDetail: Showing error state', { error, tour });
+        return (
+            <div className="container mx-auto px-4 py-16 text-center">
+                <div className="text-red-600 text-xl mb-4">{error || 'Tour not found'}</div>
+                <p className="text-gray-600 mb-4">Tour ID: {id}</p>
+                <Link to="/tours" className="text-blue-600 hover:underline">
+                    ← Back to Tours
+                </Link>
+            </div>
+        );
     }
+
+    console.log('✅ TourDetail: Rendering tour', tour);
 
     const availableSeats = tour.max_participants - tour.booked_participants;
 
