@@ -293,7 +293,7 @@ export default function TourDetail() {
                     </div>
 
                     {/* Tour Highlights */}
-                    {tour.highlights && tour.highlights.length > 0 && (
+                    {tour.highlights && Array.isArray(tour.highlights) && tour.highlights.length > 0 && (
                         <div className="mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6">
                             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                                 <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,7 +302,7 @@ export default function TourDetail() {
                                 Tour Highlights
                             </h2>
                             <ul className="space-y-3">
-                                {(Array.isArray(tour.highlights) ? tour.highlights : tour.highlights.split('\n').filter(h => h.trim())).map((highlight, index) => (
+                                {tour.highlights.map((highlight, index) => (
                                     <li key={index} className="flex items-start gap-3">
                                         <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -315,7 +315,7 @@ export default function TourDetail() {
                     )}
 
                     {/* What's Included */}
-                    {tour.included && tour.included.length > 0 && (
+                    {tour.included && Array.isArray(tour.included) && tour.included.length > 0 && (
                         <div className="mb-8">
                             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                                 <svg className="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,7 +324,7 @@ export default function TourDetail() {
                                 What's Included
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {(Array.isArray(tour.included) ? tour.included : tour.included.split('\n').filter(i => i.trim())).map((item, index) => (
+                                {tour.included.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3 bg-green-50 rounded-lg p-3">
                                         <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -337,7 +337,7 @@ export default function TourDetail() {
                     )}
 
                     {/* What's Excluded */}
-                    {tour.excluded && tour.excluded.length > 0 && (
+                    {tour.excluded && Array.isArray(tour.excluded) && tour.excluded.length > 0 && (
                         <div className="mb-8">
                             <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
                                 <svg className="w-7 h-7 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -346,7 +346,7 @@ export default function TourDetail() {
                                 What's Not Included
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                {(Array.isArray(tour.excluded) ? tour.excluded : tour.excluded.split('\n').filter(e => e.trim())).map((item, index) => (
+                                {tour.excluded.map((item, index) => (
                                     <div key={index} className="flex items-start gap-3 bg-red-50 rounded-lg p-3">
                                         <svg className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
