@@ -5,6 +5,7 @@ import api from '../services/api';
 import ReviewList from '../components/ReviewList';
 import StarRating from '../components/StarRating';
 import ImageGallery from '../components/ImageGallery';
+import SocialShare from '../components/SocialShare';
 
 export default function TourDetail() {
     const { id } = useParams();
@@ -19,6 +20,47 @@ export default function TourDetail() {
         fetchTourDetail();
         fetchReviewStats();
     }, [id]);
+
+    // Update meta tags when tour data is loaded
+    useEffect(() => {
+        if (tour) {
+            updateMetaTags();
+        }
+    }, [tour]);
+
+    const updateMetaTags = () => {
+        const url = window.location.href;
+        const title = `${tour.name} - Flymora Tours`;
+        const description = tour.description || 'Book your dream tour with Flymora Tours';
+        const image = tour.image_url || '/images/default-tour.jpg';
+
+        // Update document title
+        document.title = title;
+
+        // Update or create meta tags
+        updateMetaTag('property', 'og:title', title);
+        updateMetaTag('property', 'og:description', description);
+        updateMetaTag('property', 'og:image', image);
+        updateMetaTag('property', 'og:url', url);
+        updateMetaTag('property', 'og:type', 'website');
+
+        updateMetaTag('name', 'twitter:card', 'summary_large_image');
+        updateMetaTag('name', 'twitter:title', title);
+        updateMetaTag('name', 'twitter:description', description);
+        updateMetaTag('name', 'twitter:image', image);
+
+        updateMetaTag('name', 'description', description);
+    };
+
+    const updateMetaTag = (attr, key, content) => {
+        let element = document.querySelector(`meta[${attr}="${key}"]`);
+        if (!element) {
+            element = document.createElement('meta');
+            element.setAttribute(attr, key);
+            document.head.appendChild(element);
+        }
+        element.setAttribute('content', content);
+    };
 
     const fetchTourDetail = async () => {
         try {
@@ -178,6 +220,16 @@ export default function TourDetail() {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            {/* Social Share Section */}
+            <div className="mt-8">
+                <SocialShare 
+                    url={window.location.href}
+                    title={tour.name}
+                    description={tour.description}
+                    imageUrl={tour.image_url}
+                />
             </div>
 
             {/* Reviews Section */}
