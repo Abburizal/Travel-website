@@ -18,6 +18,13 @@ export default function Home() {
 
     return (
         <div>
+            <SEO 
+                title="Home - Tripin Travel | Your Adventure Starts Here"
+                description="Explore the world's most amazing destinations with Tripin Travel. Find and book your perfect tour package from our curated selection of adventures across Asia, Europe, and beyond."
+                keywords="travel tours, vacation packages, adventure travel, tour booking, holiday packages, international tours, Asia tours, Europe tours, travel agency"
+                url="/"
+            />
+            
             {/* Hero Section */}
             <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
                 <div className="container mx-auto px-4 text-center">
