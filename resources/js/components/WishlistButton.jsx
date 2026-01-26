@@ -43,6 +43,8 @@ const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
 
         if (!isAuthenticated) {
             alert('Please login to add tours to wishlist');
+            // Optionally redirect to login page
+            // window.location.href = '/login';
             return;
         }
 
@@ -73,10 +75,7 @@ const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
         }
     };
 
-    if (!isAuthenticated) {
-        return null; // Don't show button if not logged in
-    }
-
+    // Always show button, but with different behavior
     return (
         <button
             onClick={toggleWishlist}
@@ -96,7 +95,13 @@ const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
                 focus:ring-red-500
                 focus:ring-offset-2
             `}
-            title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            title={
+                !isAuthenticated 
+                    ? 'Login to add to wishlist'
+                    : inWishlist 
+                        ? 'Remove from wishlist' 
+                        : 'Add to wishlist'
+            }
         >
             {inWishlist ? (
                 // Filled heart
