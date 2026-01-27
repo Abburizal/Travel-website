@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { useAnalytics } from '../hooks/useAnalytics';
 
-const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
+const WishlistButton = ({ tourId, tourName, size = 'md', showText = false }) => {
     const { user } = useAuth();
+    const { trackWishlistAdd, trackWishlistRemove } = useAnalytics();
     const [inWishlist, setInWishlist] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -48,6 +50,7 @@ const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
                 const response = await api.delete(`/wishlist/${tourId}`);
                 console.log('Remove response:', response.data);
                 setInWishlist(false);
+                trackWishlistRemove(tourId, tourName || `Tour ${tourId}`);
                 alert('Tour removed from wishlist! ❤️');
             } else {
                 // Add to wishlist
@@ -55,6 +58,7 @@ const WishlistButton = ({ tourId, size = 'md', showText = false }) => {
                 const response = await api.post('/wishlist', { tour_id: tourId });
                 console.log('Add response:', response.data);
                 setInWishlist(true);
+                trackWishlistAdd(tourId, tourName || `Tour ${tourId}`);
                 alert('Tour added to wishlist! 💖');
             }
         } catch (error) {

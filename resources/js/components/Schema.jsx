@@ -67,11 +67,13 @@ export const TourProductSchema = ({ tour }) => {
         "itinerary": {
             "@type": "ItemList",
             "numberOfItems": tour.duration,
-            "itemListElement": tour.highlights?.split(',').map((highlight, index) => ({
-                "@type": "ListItem",
-                "position": index + 1,
-                "name": highlight.trim()
-            })) || []
+            "itemListElement": Array.isArray(tour.highlights) 
+                ? tour.highlights.map((highlight, index) => ({
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": typeof highlight === 'string' ? highlight.trim() : highlight
+                }))
+                : []
         }
     };
 

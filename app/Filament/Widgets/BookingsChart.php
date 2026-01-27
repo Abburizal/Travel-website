@@ -8,23 +8,27 @@ use Illuminate\Support\Facades\DB;
 
 class BookingsChart extends ChartWidget
 {
-    protected static ?string $heading = 'Bookings Trend (Last 7 Days)';
+    protected static ?string $heading = 'Bookings Trend (Last 30 Days)';
     
     protected static ?int $sort = 2;
+    
+    protected int | string | array $columnSpan = 'full';
+    
+    protected static ?string $maxHeight = '300px';
 
     protected function getData(): array
     {
-        $data = Booking::where('created_at', '>=', now()->subDays(7))
+        $data = Booking::where('created_at', '>=', now()->subDays(30))
             ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
             ->groupBy('date')
             ->orderBy('date')
             ->get();
         
-        // Generate labels for last 7 days
+        // Generate labels for last 30 days
         $labels = [];
         $counts = [];
         
-        for ($i = 6; $i >= 0; $i--) {
+        for ($i = 29; $i >= 0; $i--) {
             $date = now()->subDays($i)->format('Y-m-d');
             $labels[] = now()->subDays($i)->format('M d');
             
@@ -35,10 +39,16 @@ class BookingsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Bookings',
+                    'label' => 'Total Bookings',
                     'data' => $counts,
-                    'backgroundColor' => 'rgba(59, 130, 246, 0.5)',
+                    'fill' => true,
+                    'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                     'borderColor' => 'rgb(59, 130, 246)',
+                    'tension' => 0.4,
+                    'pointBackgroundColor' => 'rgb(59, 130, 246)',
+                    'pointBorderColor' => '#fff',
+                    'pointHoverBackgroundColor' => '#fff',
+                    'pointHoverBorderColor' => 'rgb(59, 130, 246)',
                 ],
             ],
             'labels' => $labels,
@@ -48,5 +58,24 @@ class BookingsChart extends ChartWidget
     protected function getType(): string
     {
         return 'line';
+    }
+    
+    protected function getOptions(): array
+    {
+        return [
+            'plugins' => [
+                'legend' => [
+                    'display' => true,
+                ],
+            ],
+            'scales' => [
+                'y' => [
+                    'beginAtZero' => true,
+                    'ticks' => [
+                        'precision' => 0,
+                    ],
+                ],
+            ],
+        ];
     }
 }

@@ -1,10 +1,13 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '../LanguageSwitcher';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleLogout = async () => {
         await logout();
@@ -17,20 +20,20 @@ export default function Navbar() {
                 <div className="flex justify-between items-center">
                     <Link to="/" className="flex items-center space-x-3">
                         <img 
-                            src="/images/logo.svg" 
+                            src="/images/flymora-logo.png" 
                             alt="Flymora Tours and Travels" 
-                            className="h-12"
+                            className="h-16 md:h-20 w-auto"
                         />
                     </Link>
                     
                     <div className="hidden md:flex space-x-6 items-center">
-                        <Link to="/" className="text-gray-700 hover:text-blue-600">Home</Link>
-                        <Link to="/tours" className="text-gray-700 hover:text-blue-600">Tours</Link>
+                        <Link to="/" className="text-gray-700 hover:text-blue-600">{t('nav.home')}</Link>
+                        <Link to="/tours" className="text-gray-700 hover:text-blue-600">{t('nav.tours')}</Link>
                         
                         {user ? (
                             <>
                                 <Link to="/dashboard" className="text-gray-700 hover:text-blue-600">
-                                    My Bookings
+                                    {t('nav.dashboard')}
                                 </Link>
                                 <Link to="/wishlist" className="text-gray-700 hover:text-blue-600 flex items-center gap-1">
                                     <svg 
@@ -47,29 +50,36 @@ export default function Navbar() {
                                             d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" 
                                         />
                                     </svg>
-                                    Wishlist
+                                    {t('nav.wishlist')}
                                 </Link>
+                                
+                                {/* Language Switcher */}
+                                <LanguageSwitcher />
+                                
                                 <span className="text-gray-600">Hi, {user.name}</span>
                                 <button
                                     onClick={handleLogout}
                                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                                 >
-                                    Logout
+                                    {t('nav.logout')}
                                 </button>
                             </>
                         ) : (
                             <>
+                                {/* Language Switcher */}
+                                <LanguageSwitcher />
+                                
                                 <Link
                                     to="/login"
                                     className="text-gray-700 hover:text-blue-600"
                                 >
-                                    Login
+                                    {t('nav.login')}
                                 </Link>
                                 <Link
                                     to="/register"
                                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                                 >
-                                    Register
+                                    {t('nav.register')}
                                 </Link>
                             </>
                         )}

@@ -1,10 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import SEO from '../components/SEO';
 import { OrganizationSchema, WebsiteSearchSchema } from '../components/Schema';
+import api from '../services/api';
 
 export default function Home() {
     const location = useLocation();
+    const [bestSellerTours, setBestSellerTours] = useState([]);
+    const [loadingTours, setLoadingTours] = useState(true);
 
     useEffect(() => {
         // Handle scroll after navigation from footer
@@ -18,6 +21,43 @@ export default function Home() {
         }
     }, [location]);
 
+    // Fetch best seller tours
+    useEffect(() => {
+        fetchBestSellerTours();
+    }, []);
+
+    const fetchBestSellerTours = async () => {
+        try {
+            const response = await api.get('/tours');
+            // Get first 10 tours (best sellers)
+            const tours = response.data.slice(0, 10);
+            setBestSellerTours(tours);
+        } catch (error) {
+            console.error('Error fetching best seller tours:', error);
+        } finally {
+            setLoadingTours(false);
+        }
+    };
+
+    const formatPrice = (price) => {
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    };
+
+    const formatDuration = (duration) => {
+        if (/days?|nights?/i.test(duration)) {
+            return duration;
+        }
+        const days = parseInt(duration);
+        if (isNaN(days)) return duration;
+        const nights = Math.max(0, days - 1);
+        return `${days}D ${nights}N`;
+    };
+
     return (
         <div>
             <SEO 
@@ -30,21 +70,171 @@ export default function Home() {
             <WebsiteSearchSchema />
             
             {/* Hero Section */}
-            <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
-                <div className="container mx-auto px-4 text-center">
-                    <h1 className="text-5xl font-bold mb-6">
+            <section 
+                className="relative bg-cover bg-center text-white py-20 min-h-[500px] flex items-center"
+                style={{
+                    backgroundImage: "url('/images/hero-bg.jpg')",
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                {/* Overlay for better text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-900/70 to-blue-600/50"></div>
+                
+                {/* Content */}
+                <div className="container mx-auto px-4 text-center relative z-10">
+                    <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-2xl">
                         Explore the World with Flymora
                     </h1>
-                    <p className="text-xl mb-8 max-w-2xl mx-auto">
+                    <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-lg">
                         Discover amazing destinations, create unforgettable memories,
                         and embark on adventures you'll treasure forever.
                     </p>
                     <Link
                         to="/tours"
-                        className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-gray-100 inline-block"
+                        className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold text-lg hover:bg-blue-50 hover:shadow-xl inline-block transition-all duration-300 transform hover:scale-105"
                     >
                         Browse Tours
                     </Link>
+                </div>
+            </section>
+
+            {/* Best Seller Tours Section */}
+            <section className="py-16 bg-gray-50">
+                <div className="container mx-auto px-4">
+                    <div className="flex items-center justify-between mb-8">
+                        <div>
+                            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+                                🔥 Paket Best Seller
+                            </h2>
+                            <p className="text-gray-600">
+                                Pilihan favorit traveler Flymora dengan harga terbaik!
+                            </p>
+                        </div>
+                        <Link
+                            to="/tours"
+                            className="hidden md:block text-blue-600 hover:text-blue-700 font-semibold flex items-center"
+                        >
+                            Lihat Semua
+                            <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                        </Link>
+                    </div>
+
+                    {loadingTours ? (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {[...Array(10)].map((_, i) => (
+                                <div key={i} className="bg-white rounded-lg overflow-hidden shadow animate-pulse">
+                                    <div className="w-full h-40 bg-gray-300"></div>
+                                    <div className="p-3">
+                                        <div className="h-4 bg-gray-300 rounded mb-2"></div>
+                                        <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                            {bestSellerTours.map((tour) => (
+                                <Link
+                                    key={tour.id}
+                                    to={`/tours/${tour.id}`}
+                                    className="group bg-white rounded-lg overflow-hidden shadow hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                                >
+                                    {/* Image */}
+                                    <div className="relative overflow-hidden h-40">
+                                        {tour.image_url ? (
+                                            <img
+                                                src={tour.image_url}
+                                                alt={tour.name}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                                                <svg className="w-16 h-16 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        )}
+                                        {/* Category Badge */}
+                                        <div className="absolute top-2 left-2">
+                                            <span className="bg-white/90 backdrop-blur-sm text-xs font-semibold px-2 py-1 rounded text-gray-800">
+                                                {tour.category?.name}
+                                            </span>
+                                        </div>
+                                        {/* Duration Badge */}
+                                        <div className="absolute top-2 right-2">
+                                            <span className="bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded">
+                                                {formatDuration(tour.duration)}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-3">
+                                        {/* Tour Name */}
+                                        <h3 className="font-semibold text-sm text-gray-800 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors min-h-[40px]">
+                                            {tour.name}
+                                        </h3>
+
+                                        {/* Location */}
+                                        {tour.departure_location && (
+                                            <div className="flex items-center text-xs text-gray-500 mb-2">
+                                                <svg className="w-3 h-3 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                                <span className="truncate">{tour.departure_location}</span>
+                                            </div>
+                                        )}
+
+                                        {/* Price */}
+                                        <div className="flex items-baseline justify-between">
+                                            <div>
+                                                <p className="text-xs text-gray-500 mb-1">Mulai dari</p>
+                                                <p className="text-orange-600 font-bold text-base">
+                                                    {formatPrice(tour.price)}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Rating (if available) */}
+                                        {tour.average_rating > 0 && (
+                                            <div className="flex items-center mt-2 pt-2 border-t border-gray-100">
+                                                <svg className="w-4 h-4 text-yellow-400 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                                <span className="text-xs font-semibold text-gray-700">
+                                                    {tour.average_rating.toFixed(1)}
+                                                </span>
+                                                <span className="text-xs text-gray-500 ml-1">
+                                                    ({tour.review_count})
+                                                </span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Quick Action on Hover */}
+                                    <div className="px-3 pb-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button className="w-full bg-blue-600 text-white text-xs font-semibold py-2 rounded hover:bg-blue-700 transition-colors">
+                                            Lihat Detail
+                                        </button>
+                                    </div>
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* View All Mobile */}
+                    <div className="text-center mt-8 md:hidden">
+                        <Link
+                            to="/tours"
+                            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                        >
+                            Lihat Semua Paket Tour
+                        </Link>
+                    </div>
                 </div>
             </section>
 

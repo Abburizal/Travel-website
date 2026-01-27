@@ -1,8 +1,9 @@
-import React, { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import React, { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import Layout from './components/layout/Layout';
 import ErrorBoundary from './components/ErrorBoundary';
+import { initializeAnalytics, useAnalytics } from './hooks/useAnalytics';
 
 // Eager load critical pages (above the fold)
 import Home from './pages/Home';
@@ -48,6 +49,21 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+    const location = useLocation();
+    const { trackPageView } = useAnalytics();
+
+    // Initialize GA4 on app mount
+    useEffect(() => {
+        initializeAnalytics();
+    }, []);
+
+    // Track page views on route change
+    useEffect(() => {
+        const pagePath = location.pathname + location.search;
+        const pageTitle = document.title;
+        trackPageView(pagePath, pageTitle);
+    }, [location, trackPageView]);
+
     return (
         <ErrorBoundary>
             <Routes>

@@ -10,11 +10,13 @@ import WishlistButton from '../components/WishlistButton';
 import CompareButton from '../components/CompareButton';
 import SEO from '../components/SEO';
 import { TourProductSchema, BreadcrumbSchema } from '../components/Schema';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 export default function TourDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { user } = useAuth();
+    const { trackTourView, trackBookingStart } = useAnalytics();
     const [tour, setTour] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -88,6 +90,9 @@ export default function TourDetail() {
             console.log('✅ API Response received:', response.data);
             setTour(response.data);
             console.log('✅ Tour data set in state');
+            
+            // Track tour view
+            trackTourView(response.data.id, response.data.name);
         } catch (err) {
             console.error('❌ Error fetching tour:', err);
             console.error('❌ Error response:', err.response?.data);
@@ -135,15 +140,21 @@ export default function TourDetail() {
         const numPrice = parseFloat(price);
         if (isNaN(numPrice)) return price;
         
-        // Convert to IDR (assuming price is in USD and 1 USD = 15,000 IDR)
-        const idrPrice = numPrice * 15000;
-        return `Rp ${idrPrice.toLocaleString('id-ID')}`;
+        // Price is already in IDR from database
+        return new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(numPrice);
     };
 
     const handleBookNow = () => {
         if (!user) {
             navigate('/login');
         } else {
+            // Track booking initiation
+            trackBookingStart(tour.id, tour.name);
             navigate(`/booking/${id}`);
         }
     };
@@ -228,7 +239,7 @@ export default function TourDetail() {
                                 {/* Action Buttons */}
                                 <div className="ml-4 flex gap-2">
                                     <CompareButton tour={tour} size="md" variant="outline" />
-                                    <WishlistButton tourId={tour.id} size="lg" showText />
+                                    <WishlistButton tourId={tour.id} tourName={tour.name} size="lg" showText />
                                 </div>
                             </div>
                             

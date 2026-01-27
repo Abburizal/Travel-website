@@ -180,8 +180,96 @@ class TourResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                // Category Filter
                 Tables\Filters\SelectFilter::make('category')
-                    ->relationship('category', 'name'),
+                    ->relationship('category', 'name')
+                    ->multiple()
+                    ->preload(),
+                
+                // Price Range Filter
+                Tables\Filters\Filter::make('price_range')
+                    ->form([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('price_from')
+                                    ->label('Min Price')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+                                Forms\Components\TextInput::make('price_to')
+                                    ->label('Max Price')
+                                    ->numeric()
+                                    ->prefix('Rp'),
+                            ]),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['price_from'],
+                                fn (Builder $query, $price): Builder => $query->where('price', '>=', $price),
+                            )
+                            ->when(
+                                $data['price_to'],
+                                fn (Builder $query, $price): Builder => $query->where('price', '<=', $price),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['price_from'] && ! $data['price_to']) {
+                            return null;
+                        }
+                        
+                        if ($data['price_from'] && $data['price_to']) {
+                            return 'Price: Rp ' . number_format($data['price_from']) . ' - Rp ' . number_format($data['price_to']);
+                        }
+                        
+                        if ($data['price_from']) {
+                            return 'Price from: Rp ' . number_format($data['price_from']);
+                        }
+                        
+                        return 'Price up to: Rp ' . number_format($data['price_to']);
+                    }),
+                
+                // Date Range Filter
+                Tables\Filters\Filter::make('date_range')
+                    ->form([
+                        Forms\Components\DatePicker::make('start_from')
+                            ->label('Starts From'),
+                        Forms\Components\DatePicker::make('start_until')
+                            ->label('Starts Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['start_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('start_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['start_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('start_date', '<=', $date),
+                            );
+                    })
+                    ->indicateUsing(function (array $data): ?string {
+                        if (! $data['start_from'] && ! $data['start_until']) {
+                            return null;
+                        }
+                        
+                        if ($data['start_from'] && $data['start_until']) {
+                            return 'Starts: ' . \Carbon\Carbon::parse($data['start_from'])->format('d M Y') . ' - ' . \Carbon\Carbon::parse($data['start_until'])->format('d M Y');
+                        }
+                        
+                        if ($data['start_from']) {
+                            return 'Starts from: ' . \Carbon\Carbon::parse($data['start_from'])->format('d M Y');
+                        }
+                        
+                        return 'Starts until: ' . \Carbon\Carbon::parse($data['start_until'])->format('d M Y');
+                    }),
+                
+                // Availability Filter
+                Tables\Filters\Filter::make('availability')
+                    ->label('Availability')
+                    ->toggle()
+                    ->query(fn (Builder $query): Builder => 
+                        $query->whereColumn('booked_participants', '<', 'max_participants')
+                    ),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -189,7 +277,117 @@ class TourResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    // Delete
                     Tables\Actions\DeleteBulkAction::make(),
+                    
+                    // Bulk Update Price
+                    Tables\Actions\BulkAction::make('updatePrice')
+                        ->label('Update Price')
+                        ->icon('heroicon-o-currency-dollar')
+                        ->color('warning')
+                        ->form([
+                            Forms\Components\Select::make('operation')
+                                ->label('Operation')
+                                ->options([
+                                    'set' => 'Set Fixed Price',
+                                    'increase' => 'Increase by %',
+                                    'decrease' => 'Decrease by %',
+                                ])
+                                ->required()
+                                ->live(),
+                            Forms\Components\TextInput::make('value')
+                                ->label(fn ($get) => match($get('operation')) {
+                                    'set' => 'New Price (IDR)',
+                                    'increase' => 'Increase by (%)',
+                                    'decrease' => 'Decrease by (%)',
+                                    default => 'Value'
+                                })
+                                ->numeric()
+                                ->required()
+                                ->minValue(0),
+                        ])
+                        ->action(function ($records, $data) {
+                            foreach ($records as $record) {
+                                $newPrice = match($data['operation']) {
+                                    'set' => $data['value'],
+                                    'increase' => $record->price * (1 + $data['value'] / 100),
+                                    'decrease' => $record->price * (1 - $data['value'] / 100),
+                                };
+                                $record->update(['price' => max(0, $newPrice)]);
+                            }
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->successNotification(
+                            \Filament\Notifications\Notification::make()
+                                ->success()
+                                ->title('Prices updated successfully')
+                        ),
+                    
+                    // Bulk Update Category
+                    Tables\Actions\BulkAction::make('updateCategory')
+                        ->label('Change Category')
+                        ->icon('heroicon-o-tag')
+                        ->color('info')
+                        ->form([
+                            Forms\Components\Select::make('category_id')
+                                ->label('New Category')
+                                ->relationship('category', 'name')
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->action(fn ($records, $data) => 
+                            $records->each->update(['category_id' => $data['category_id']])
+                        )
+                        ->deselectRecordsAfterCompletion()
+                        ->successNotification(
+                            \Filament\Notifications\Notification::make()
+                                ->success()
+                                ->title('Category updated successfully')
+                        ),
+                    
+                    // Bulk Export to CSV
+                    Tables\Actions\BulkAction::make('export')
+                        ->label('Export to CSV')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->color('success')
+                        ->action(function ($records) {
+                            $filename = 'tours_export_' . now()->format('Y-m-d_His') . '.csv';
+                            $headers = [
+                                'Content-Type' => 'text/csv',
+                                'Content-Disposition' => "attachment; filename=\"$filename\"",
+                            ];
+                            
+                            $callback = function() use ($records) {
+                                $file = fopen('php://output', 'w');
+                                
+                                // Headers
+                                fputcsv($file, [
+                                    'ID', 'Name', 'Category', 'Destination', 'Price', 
+                                    'Duration', 'Max Participants', 'Booked', 'Start Date', 'End Date'
+                                ]);
+                                
+                                // Data
+                                foreach ($records as $tour) {
+                                    fputcsv($file, [
+                                        $tour->id,
+                                        $tour->name,
+                                        $tour->category?->name ?? '',
+                                        $tour->destination,
+                                        $tour->price,
+                                        $tour->duration,
+                                        $tour->max_participants,
+                                        $tour->booked_participants,
+                                        $tour->start_date?->format('Y-m-d'),
+                                        $tour->end_date?->format('Y-m-d'),
+                                    ]);
+                                }
+                                
+                                fclose($file);
+                            };
+                            
+                            return response()->stream($callback, 200, $headers);
+                        })
+                        ->deselectRecordsAfterCompletion(),
                 ]),
             ])
             ->defaultSort('start_date', 'desc');

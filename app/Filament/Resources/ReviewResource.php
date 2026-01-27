@@ -16,11 +16,11 @@ class ReviewResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-star';
     
-    protected static ?string $navigationLabel = 'Reviews';
+    protected static ?string $navigationLabel = 'Reviews & Ratings';
     
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
     
-    protected static ?string $navigationGroup = 'Travel Management';
+    protected static ?string $navigationGroup = 'Customer Management';
 
     public static function form(Form $form): Form
     {

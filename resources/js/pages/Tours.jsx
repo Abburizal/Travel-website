@@ -4,8 +4,10 @@ import api from '../services/api';
 import WishlistButton from '../components/WishlistButton';
 import CompareButton from '../components/CompareButton';
 import SEO from '../components/SEO';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 export default function Tours() {
+    const { trackSearch, trackFilter } = useAnalytics();
     const [tours, setTours] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -34,6 +36,13 @@ export default function Tours() {
     // Auto-update for filters (NOT search)
     useEffect(() => {
         fetchTours();
+        
+        // Track filter usage
+        if (selectedCategory) trackFilter('Category', selectedCategory);
+        if (minPrice || maxPrice) trackFilter('Price', `${minPrice}-${maxPrice}`);
+        if (duration) trackFilter('Duration', duration);
+        if (availableOnly) trackFilter('Availability', 'Available Only');
+        if (sortBy !== 'created_at') trackFilter('Sort', sortBy);
     }, [searchQuery, selectedCategory, minPrice, maxPrice, duration, availableOnly, sortBy]);
 
     const fetchCategories = async () => {
@@ -71,6 +80,11 @@ export default function Tours() {
     const handleSearch = (e) => {
         if (e) e.preventDefault();
         setSearchQuery(searchInput);
+        
+        // Track search query
+        if (searchInput.trim()) {
+            trackSearch(searchInput);
+        }
     };
 
     // Handle Enter key in search input
@@ -339,7 +353,7 @@ export default function Tours() {
                                     
                                     {/* Wishlist Button */}
                                     <div className="absolute top-3 right-3">
-                                        <WishlistButton tourId={tour.id} size="sm" />
+                                        <WishlistButton tourId={tour.id} tourName={tour.name} size="sm" />
                                     </div>
                                     
                                     {/* Status Badge */}
@@ -379,6 +393,16 @@ export default function Tours() {
                                                 </svg>
                                                 <span className="font-medium">{formatDuration(tour.duration)}</span>
                                             </div>
+                                            
+                                            {/* Departure Location */}
+                                            {tour.departure_location && (
+                                                <div className="flex items-center gap-2 text-sm text-gray-700">
+                                                    <svg className="w-4 h-4 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                                                    </svg>
+                                                    <span className="font-medium truncate">{tour.departure_location}</span>
+                                                </div>
+                                            )}
                                             
                                             {/* Destination */}
                                             <div className="flex items-center gap-2 text-sm text-gray-700">

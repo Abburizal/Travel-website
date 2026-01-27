@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ItineraryController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\AnalyticsController;
 
 // Public routes
 Route::get('/tours', [TourController::class, 'index']);
@@ -60,4 +61,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/wishlist', [WishlistController::class, 'store']);
     Route::delete('/wishlist/{tourId}', [WishlistController::class, 'destroy']);
     Route::get('/wishlist/check/{tourId}', [WishlistController::class, 'check']);
+    
+    // Analytics routes (admin only - add middleware in future)
+    Route::get('/analytics/popular-tours', [AnalyticsController::class, 'popularTours']);
+    Route::get('/analytics/conversion-rates', [AnalyticsController::class, 'conversionRates']);
+    Route::get('/analytics/revenue-stats', [AnalyticsController::class, 'revenueStats']);
+    Route::get('/analytics/booking-trends', [AnalyticsController::class, 'bookingTrends']);
+    Route::get('/analytics/user-engagement', [AnalyticsController::class, 'userEngagement']);
+    Route::get('/analytics/dashboard-overview', [AnalyticsController::class, 'dashboardOverview']);
 });

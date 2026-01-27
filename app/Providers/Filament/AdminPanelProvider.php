@@ -31,11 +31,13 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo('/images/logo.svg')
             ->brandLogoHeight('3rem')
             ->favicon('/favicon.svg')
+            ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => Color::Blue,
                 'success' => Color::Green,
                 'warning' => Color::Amber,
                 'danger' => Color::Red,
+                'info' => Color::Sky,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -47,6 +49,8 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\StatsOverview::class,
                 \App\Filament\Widgets\BookingsChart::class,
                 \App\Filament\Widgets\RevenueChart::class,
+                \App\Filament\Widgets\RecentBookingsWidget::class,
+                \App\Filament\Widgets\PopularToursWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,
@@ -64,6 +68,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'Travel Management',
+                'Customer Management',
                 'System',
             ]);
     }

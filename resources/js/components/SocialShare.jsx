@@ -7,9 +7,11 @@ import {
     TwitterIcon,
     WhatsappIcon,
 } from 'react-share';
+import { useAnalytics } from '../hooks/useAnalytics';
 
-export default function SocialShare({ url, title, description, imageUrl }) {
+export default function SocialShare({ url, title, description, imageUrl, tourId, tourName }) {
     const [copied, setCopied] = useState(false);
+    const { trackSocialShare } = useAnalytics();
 
     const handleCopyLink = () => {
         navigator.clipboard.writeText(url);
@@ -29,6 +31,7 @@ export default function SocialShare({ url, title, description, imageUrl }) {
                     url={url}
                     quote={title}
                     hashtag="#FlymoraTours"
+                    onClick={() => trackSocialShare('Facebook', tourId, tourName)}
                 >
                     <FacebookIcon size={40} round />
                 </FacebookShareButton>
@@ -38,6 +41,7 @@ export default function SocialShare({ url, title, description, imageUrl }) {
                     url={url}
                     title={title}
                     hashtags={['FlymoraTours', 'Travel', 'Tour']}
+                    onClick={() => trackSocialShare('Twitter', tourId, tourName)}
                 >
                     <TwitterIcon size={40} round />
                 </TwitterShareButton>
@@ -47,6 +51,7 @@ export default function SocialShare({ url, title, description, imageUrl }) {
                     url={url}
                     title={title}
                     separator=" - "
+                    onClick={() => trackSocialShare('WhatsApp', tourId, tourName)}
                 >
                     <WhatsappIcon size={40} round />
                 </WhatsappShareButton>
