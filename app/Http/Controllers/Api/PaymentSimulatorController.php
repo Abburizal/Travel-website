@@ -7,7 +7,9 @@ use App\Models\Booking;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Jobs\SendETicketEmail;
+use App\Mail\PaymentSuccessful;
 
 class PaymentSimulatorController extends Controller
 {
@@ -135,6 +137,9 @@ class PaymentSimulatorController extends Controller
             // Queue e-ticket email to send in background
             $booking->load(['user', 'tour']);
             SendETicketEmail::dispatch($booking);
+            
+            // Send payment successful email
+            Mail::to($booking->user->email)->queue(new PaymentSuccessful($booking, $payment));
 
             \Log::info('Payment simulated successfully', [
                 'booking_id' => $booking->id,

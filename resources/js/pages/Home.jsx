@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../hooks/useCurrency';
 import SEO from '../components/SEO';
 import { OrganizationSchema, WebsiteSearchSchema } from '../components/Schema';
 import api from '../services/api';
 
 export default function Home() {
+    const { t } = useTranslation();
+    const { formatCurrency } = useCurrency();
     const location = useLocation();
     const [bestSellerTours, setBestSellerTours] = useState([]);
     const [loadingTours, setLoadingTours] = useState(true);
@@ -39,14 +43,7 @@ export default function Home() {
         }
     };
 
-    const formatPrice = (price) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(price);
-    };
+    // Use useCurrency formatCurrency instead of local formatPrice
 
     const formatDuration = (duration) => {
         if (/days?|nights?/i.test(duration)) {
@@ -197,9 +194,9 @@ export default function Home() {
                                         {/* Price */}
                                         <div className="flex items-baseline justify-between">
                                             <div>
-                                                <p className="text-xs text-gray-500 mb-1">Mulai dari</p>
+                                                <p className="text-xs text-gray-500 mb-1">{t('tours.starting_from')}</p>
                                                 <p className="text-orange-600 font-bold text-base">
-                                                    {formatPrice(tour.price)}
+                                                    {formatCurrency(tour.price)}
                                                 </p>
                                             </div>
                                         </div>
@@ -380,13 +377,13 @@ export default function Home() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <div className="text-center group">
                                 <div className="relative mb-4 overflow-hidden rounded-xl">
-                                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl flex items-center justify-center">
-                                        <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <img 
+                                        src="/images/team/nuriza-palopian.jpg" 
+                                        alt="Nuriza Palopian"
+                                        className="w-48 h-48 mx-auto object-cover rounded-xl"
+                                    />
                                 </div>
-                                <h4 className="font-bold text-xl mb-1 text-gray-800">Sarah Johnson</h4>
+                                <h4 className="font-bold text-xl mb-1 text-gray-800">Nuriza Palopian</h4>
                                 <p className="text-blue-600 font-semibold mb-2">CEO & Founder</p>
                                 <p className="text-gray-600 text-sm">
                                     Passionate traveler with 15+ years in the tourism industry
@@ -395,13 +392,13 @@ export default function Home() {
 
                             <div className="text-center group">
                                 <div className="relative mb-4 overflow-hidden rounded-xl">
-                                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center">
-                                        <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <img 
+                                        src="/images/team/abburizal-chillihyat.jpg" 
+                                        alt="Abburizal Chillihyat"
+                                        className="w-48 h-48 mx-auto object-cover rounded-xl"
+                                    />
                                 </div>
-                                <h4 className="font-bold text-xl mb-1 text-gray-800">Michael Chen</h4>
+                                <h4 className="font-bold text-xl mb-1 text-gray-800">Abburizal Chillihyat</h4>
                                 <p className="text-green-700 font-semibold mb-2">Operations Manager</p>
                                 <p className="text-gray-600 text-sm">
                                     Expert in logistics and ensuring seamless travel experiences
@@ -410,13 +407,13 @@ export default function Home() {
 
                             <div className="text-center group">
                                 <div className="relative mb-4 overflow-hidden rounded-xl">
-                                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center">
-                                        <svg className="w-24 h-24 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
+                                    <img 
+                                        src="/images/team/rafael-struick.png" 
+                                        alt="Rafael Struick"
+                                        className="w-48 h-48 mx-auto object-cover rounded-xl"
+                                    />
                                 </div>
-                                <h4 className="font-bold text-xl mb-1 text-gray-800">Emily Rodriguez</h4>
+                                <h4 className="font-bold text-xl mb-1 text-gray-800">Rafael Struick</h4>
                                 <p className="text-purple-600 font-semibold mb-2">Customer Relations</p>
                                 <p className="text-gray-600 text-sm">
                                     Dedicated to providing exceptional customer support

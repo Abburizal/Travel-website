@@ -24,7 +24,9 @@
     "error": "Error",
     "success": "Success",
     "warning": "Warning",
-    "info": "Info"
+    "info": "Info",
+    "days": "days",
+    "per_person": "per person"
   },
   "nav": {
     "home": "Home",
@@ -87,6 +89,9 @@
     "noResults": "No tours found",
     "tryDifferent": "Try adjusting your filters or search query",
     "perPerson": "per person",
+    "starting_from": "Starting from",
+    "seatsLeft": "Seats Left",
+    "soldOut": "Sold Out",
     "bookNow": "Book Now",
     "viewDetails": "View Details"
   },

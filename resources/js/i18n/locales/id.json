@@ -24,7 +24,9 @@
     "error": "Error",
     "success": "Berhasil",
     "warning": "Peringatan",
-    "info": "Info"
+    "info": "Info",
+    "days": "hari",
+    "per_person": "per orang"
   },
   "nav": {
     "home": "Beranda",
@@ -87,6 +89,9 @@
     "noResults": "Paket wisata tidak ditemukan",
     "tryDifferent": "Coba sesuaikan filter atau kata kunci pencarian Anda",
     "perPerson": "per orang",
+    "starting_from": "Mulai dari",
+    "seatsLeft": "Kursi Tersisa",
+    "soldOut": "Habis Terjual",
     "bookNow": "Pesan Sekarang",
     "viewDetails": "Lihat Detail"
   },

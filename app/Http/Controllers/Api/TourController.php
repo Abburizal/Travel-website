@@ -3,10 +3,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tour;
+use Illuminate\Support\Facades\Cache;
 
 class TourController extends Controller
 {
     public function index()
+    {
+        // Create cache key based on request parameters
+        $cacheKey = 'tours_' . md5(json_encode(request()->all()));
+        
+        // Cache for 5 minutes (300 seconds)
+        return Cache::remember($cacheKey, 300, function() {
+            return $this->fetchTours();
+        });
+    }
+    
+    private function fetchTours()
     {
         $query = Tour::with('category');
 
@@ -64,7 +76,8 @@ class TourController extends Controller
                 $query->orderBy($sortBy, $sortOrder);
         }
 
-        $tours = $query->get()->map(function($tour) {
+        // Eager load relationships to prevent N+1 queries
+        $tours = $query->with(['category', 'media'])->get()->map(function($tour) {
             // Add full image URL (old field)
             if ($tour->image) {
                 $tour->image_url = asset('storage/' . $tour->image);
@@ -97,33 +110,39 @@ class TourController extends Controller
 
     public function show($id)
     {
-        $tour = Tour::with('category')->findOrFail($id);
+        // Cache individual tour for 10 minutes
+        $cacheKey = "tour_{$id}";
         
-        // Add full image URL (old field)
-        if ($tour->image) {
-            $tour->image_url = asset('storage/' . $tour->image);
-        } else {
-            $tour->image_url = null;
-        }
+        return Cache::remember($cacheKey, 600, function() use ($id) {
+            // Eager load relationships and media
+            $tour = Tour::with(['category', 'media', 'reviews'])->findOrFail($id);
         
-        // Add media library gallery images
-        $tour->gallery_images = $tour->getMedia('images')->map(function($media) {
-            return [
-                'id' => $media->id,
-                'url' => $media->getUrl(),
-                'name' => $media->file_name,
-            ];
+            // Add full image URL (old field)
+            if ($tour->image) {
+                $tour->image_url = asset('storage/' . $tour->image);
+            } else {
+                $tour->image_url = null;
+            }
+            
+            // Add media library gallery images
+            $tour->gallery_images = $tour->getMedia('images')->map(function($media) {
+                return [
+                    'id' => $media->id,
+                    'url' => $media->getUrl(),
+                    'name' => $media->file_name,
+                ];
+            });
+            
+            // Use first gallery image as thumbnail if no old image
+            if (!$tour->image_url && $tour->gallery_images->count() > 0) {
+                $tour->image_url = $tour->gallery_images->first()['url'];
+            }
+            
+            // Add rating data
+            $tour->average_rating = round($tour->average_rating, 1);
+            $tour->review_count = $tour->review_count;
+            
+            return response()->json($tour);
         });
-        
-        // Use first gallery image as thumbnail if no old image
-        if (!$tour->image_url && $tour->gallery_images->count() > 0) {
-            $tour->image_url = $tour->gallery_images->first()['url'];
-        }
-        
-        // Add rating data
-        $tour->average_rating = round($tour->average_rating, 1);
-        $tour->review_count = $tour->review_count;
-        
-        return response()->json($tour);
     }
 }

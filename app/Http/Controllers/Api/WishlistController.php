@@ -25,7 +25,38 @@ class WishlistController extends Controller
         $wishlists = $user->wishlists()
             ->with('tour.category')
             ->latest()
-            ->get();
+            ->get()
+            ->map(function($wishlist) {
+                // Add image_url to tour (same logic as TourController)
+                if ($wishlist->tour) {
+                    // Add full image URL (old field)
+                    if ($wishlist->tour->image) {
+                        $wishlist->tour->image_url = asset('storage/' . $wishlist->tour->image);
+                    } else {
+                        $wishlist->tour->image_url = null;
+                    }
+                    
+                    // Add media library gallery images
+                    $wishlist->tour->gallery_images = $wishlist->tour->getMedia('images')->map(function($media) {
+                        return [
+                            'id' => $media->id,
+                            'url' => $media->getUrl(),
+                            'name' => $media->file_name,
+                        ];
+                    });
+                    
+                    // Use first gallery image as thumbnail if no old image
+                    if (!$wishlist->tour->image_url && $wishlist->tour->gallery_images->count() > 0) {
+                        $wishlist->tour->image_url = $wishlist->tour->gallery_images->first()['url'];
+                    }
+                    
+                    // Add rating data
+                    $wishlist->tour->average_rating = round($wishlist->tour->average_rating, 1);
+                    $wishlist->tour->review_count = $wishlist->tour->review_count;
+                }
+                
+                return $wishlist;
+            });
         
         \Log::info('✅ Wishlist Retrieved', [
             'count' => $wishlists->count(),
@@ -77,6 +108,34 @@ class WishlistController extends Controller
         ]);
 
         $wishlist->load('tour.category');
+        
+        // Add image_url to tour (same logic as TourController)
+        if ($wishlist->tour) {
+            // Add full image URL (old field)
+            if ($wishlist->tour->image) {
+                $wishlist->tour->image_url = asset('storage/' . $wishlist->tour->image);
+            } else {
+                $wishlist->tour->image_url = null;
+            }
+            
+            // Add media library gallery images
+            $wishlist->tour->gallery_images = $wishlist->tour->getMedia('images')->map(function($media) {
+                return [
+                    'id' => $media->id,
+                    'url' => $media->getUrl(),
+                    'name' => $media->file_name,
+                ];
+            });
+            
+            // Use first gallery image as thumbnail if no old image
+            if (!$wishlist->tour->image_url && $wishlist->tour->gallery_images->count() > 0) {
+                $wishlist->tour->image_url = $wishlist->tour->gallery_images->first()['url'];
+            }
+            
+            // Add rating data
+            $wishlist->tour->average_rating = round($wishlist->tour->average_rating, 1);
+            $wishlist->tour->review_count = $wishlist->tour->review_count;
+        }
         
         \Log::info('✅ Wishlist Created', [
             'wishlist_id' => $wishlist->id,

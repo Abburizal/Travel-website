@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\ValidationException;
+use App\Mail\WelcomeEmail;
 
 class AuthController extends Controller
 {
@@ -32,6 +34,9 @@ class AuthController extends Controller
 
             // Create API token
             $token = $user->createToken('api-token')->plainTextToken;
+            
+            // Send welcome email
+            Mail::to($user->email)->queue(new WelcomeEmail($user));
 
             return response()->json([
                 'success' => true,

@@ -13,6 +13,9 @@ use App\Http\Controllers\Api\ContactController;
 use App\Http\Controllers\Api\ItineraryController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\AnalyticsController;
+use App\Http\Controllers\Admin\BulkOperationController;
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\ExportController;
 
 // Public routes
 Route::get('/tours', [TourController::class, 'index']);
@@ -53,8 +56,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/payments', [PaymentController::class, 'pay']);
 
     // Review routes
-    Route::post('/reviews', [ReviewController::class, 'store']);
-    Route::get('/bookings/{booking}/can-review', [ReviewController::class, 'canReview']);
+    Route::post('/tours/{tour}/reviews', [ReviewController::class, 'store']);
+    Route::get('/tours/{tour}/can-review', [ReviewController::class, 'canReview']);
 
     // Wishlist routes
     Route::get('/wishlist', [WishlistController::class, 'index']);
@@ -69,4 +72,25 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/analytics/booking-trends', [AnalyticsController::class, 'bookingTrends']);
     Route::get('/analytics/user-engagement', [AnalyticsController::class, 'userEngagement']);
     Route::get('/analytics/dashboard-overview', [AnalyticsController::class, 'dashboardOverview']);
+    
+    // Admin bulk operations routes
+    Route::prefix('admin/tours')->group(function () {
+        Route::post('/bulk-delete', [BulkOperationController::class, 'bulkDelete']);
+        Route::post('/bulk-update', [BulkOperationController::class, 'bulkUpdate']);
+        Route::post('/bulk-restore', [BulkOperationController::class, 'bulkRestore']);
+    });
+    
+    // Admin activity logs routes
+    Route::prefix('admin/activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index']);
+        Route::get('/stats', [ActivityLogController::class, 'stats']);
+        Route::get('/{id}', [ActivityLogController::class, 'show']);
+    });
+    
+    // Admin export routes
+    Route::prefix('admin/export')->group(function () {
+        Route::get('/tours', [ExportController::class, 'tours']);
+        Route::get('/bookings', [ExportController::class, 'bookings']);
+        Route::get('/stats', [ExportController::class, 'stats']);
+    });
 });

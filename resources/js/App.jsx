@@ -22,6 +22,7 @@ const TermsOfService = lazy(() => import('./pages/TermsOfService'));
 const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'));
 const Wishlist = lazy(() => import('./pages/Wishlist'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
+// Removed: AdminTours and ActivityLogs (using Filament Admin instead)
 
 // Loading component
 const PageLoader = () => (
@@ -170,6 +171,8 @@ function App() {
                         </Suspense>
                     }
                 />
+                
+                {/* Removed: Custom React Admin routes - using Filament Admin instead */}
             </Route>
         </Routes>
         </ErrorBoundary>

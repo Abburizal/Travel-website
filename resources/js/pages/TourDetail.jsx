@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import ReviewList from '../components/ReviewList';
+import SubmitReview from '../components/SubmitReview';
 import StarRating from '../components/StarRating';
 import ImageGallery from '../components/ImageGallery';
 import SocialShare from '../components/SocialShare';
@@ -523,9 +524,15 @@ export default function TourDetail() {
             </div>
 
             {/* Reviews Section */}
-            <div className="mt-8 bg-white rounded-lg shadow-md p-8">
-                <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
-                <ReviewList tourId={id} />
+            <div className="mt-8 space-y-6">
+                {/* Submit Review Form */}
+                <SubmitReview tourId={id} onReviewSubmitted={() => window.location.reload()} />
+                
+                {/* Reviews List */}
+                <div className="bg-white rounded-lg shadow-md p-8">
+                    <h2 className="text-2xl font-bold mb-6">Customer Reviews</h2>
+                    <ReviewList tourId={id} />
+                </div>
             </div>
         </div>
     );

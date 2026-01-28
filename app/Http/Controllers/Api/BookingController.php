@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Jobs\SendInvoiceEmail;
+use App\Mail\BookingConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -96,6 +98,9 @@ class BookingController extends Controller
 
             // Queue invoice email to send in background
             SendInvoiceEmail::dispatch($booking);
+            
+            // Send booking confirmation email
+            Mail::to($booking->user->email)->queue(new BookingConfirmation($booking));
 
             return response()->json([
                 'success' => true,

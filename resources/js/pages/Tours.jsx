@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useCurrency } from '../hooks/useCurrency';
 import api from '../services/api';
 import WishlistButton from '../components/WishlistButton';
 import CompareButton from '../components/CompareButton';
@@ -7,6 +9,8 @@ import SEO from '../components/SEO';
 import { useAnalytics } from '../hooks/useAnalytics';
 
 export default function Tours() {
+    const { t } = useTranslation();
+    const { formatCurrency } = useCurrency();
     const { trackSearch, trackFilter } = useAnalytics();
     const [tours, setTours] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -105,13 +109,7 @@ export default function Tours() {
         setSortBy('created_at');
     };
 
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-        }).format(amount);
-    };
+    // Use formatCurrency from useCurrency hook instead
 
     const formatDuration = (duration) => {
         // If duration already contains "Days", "Nights", "Day", "Night", return as is
@@ -119,7 +117,7 @@ export default function Tours() {
             return duration;
         }
         // Otherwise, it's just a number, add "days"
-        return `${duration} days`;
+        return `${duration} ${t('common.days')}`;
     };
 
     if (error) {
@@ -325,6 +323,7 @@ export default function Tours() {
                                         <img 
                                             src={tour.image_url} 
                                             alt={tour.name}
+                                            loading="lazy"
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                             onError={(e) => {
                                                 e.target.onerror = null;
@@ -383,9 +382,9 @@ export default function Tours() {
                                     </p>
                                     
                                     {/* 2-Column Layout: Meta Info (Left) | Seats (Right) */}
-                                    <div className="flex gap-4 mb-4 pb-4 border-b border-gray-100">
+                                    <div className="flex gap-4 mb-4 pb-4 border-b border-gray-100 items-start">
                                         {/* LEFT COLUMN: Meta Information */}
-                                        <div className="flex-1 space-y-2">
+                                        <div className="flex-1 space-y-2 min-w-0">
                                             {/* Duration */}
                                             <div className="flex items-center gap-2 text-sm text-gray-700">
                                                 <svg className="w-4 h-4 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -426,7 +425,7 @@ export default function Tours() {
                                                         {availableSeats}
                                                     </div>
                                                     <div className={`text-xs font-semibold uppercase tracking-wide ${isLowStock ? 'text-orange-700' : 'text-green-700'}`}>
-                                                        Seats Left
+                                                        {t('tours.seatsLeft')}
                                                     </div>
                                                 </div>
                                             </div>
@@ -439,7 +438,7 @@ export default function Tours() {
                                             <span className="text-2xl font-bold text-blue-600">
                                                 {formatCurrency(tour.price)}
                                             </span>
-                                            <span className="text-sm text-gray-500 ml-1 font-medium">/ person</span>
+                                            <span className="text-sm text-gray-500 ml-1 font-medium">/ {t('common.per_person')}</span>
                                         </div>
                                     </div>
                                     
@@ -460,11 +459,11 @@ export default function Tours() {
                                                     <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                                     </svg>
-                                                    Sold Out
+                                                    {t('tours.soldOut')}
                                                 </>
                                             ) : (
                                                 <>
-                                                    View Details
+                                                    {t('tours.viewDetails')}
                                                     <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                                     </svg>

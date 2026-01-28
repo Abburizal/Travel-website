@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from '../LanguageSwitcher';
+import CurrencySwitcher from '../CurrencySwitcher';
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -53,8 +54,11 @@ export default function Navbar() {
                                     {t('nav.wishlist')}
                                 </Link>
                                 
-                                {/* Language Switcher */}
-                                <LanguageSwitcher />
+                                {/* Language & Currency Switchers */}
+                                <div className="flex items-center gap-2">
+                                    <CurrencySwitcher />
+                                    <LanguageSwitcher />
+                                </div>
                                 
                                 <span className="text-gray-600">Hi, {user.name}</span>
                                 <button
@@ -66,8 +70,11 @@ export default function Navbar() {
                             </>
                         ) : (
                             <>
-                                {/* Language Switcher */}
-                                <LanguageSwitcher />
+                                {/* Language & Currency Switchers */}
+                                <div className="flex items-center gap-2">
+                                    <CurrencySwitcher />
+                                    <LanguageSwitcher />
+                                </div>
                                 
                                 <Link
                                     to="/login"
